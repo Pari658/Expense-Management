@@ -269,7 +269,7 @@ document.getElementById('signup-form')?.addEventListener('submit', async (e) => 
     const email = document.getElementById('signup-email').value;
     const password = document.getElementById('signup-password').value;
     const confirmPassword = document.getElementById('signup-confirm-password').value;
-    const countryCurrencyCode = document.getElementById('signup-country').value; // Currency code is the option value
+    const companyName = document.getElementById('signup-company').value; // Currency code is the option value
     
     // Password Confirmation Check
     if (password !== confirmPassword) {
@@ -278,16 +278,16 @@ document.getElementById('signup-form')?.addEventListener('submit', async (e) => 
         return; 
     }
     
-    // Check if country was selected (the default option is value="")
-    if (!countryCurrencyCode) {
-        signupErrorElement.textContent = "Error: Please select your company's country.";
+    // Check if company name was entered
+    if (!companyName) {
+        signupErrorElement.textContent = "Error: Please enter your company name.";
         signupErrorElement.classList.remove('hidden');
         return; 
     }
 
     try {
         // REAL API CALL
-        const result = await signupAdmin({ name, email, password, countryCurrencyCode });
+        const result = await signupAdmin({ name, email, password, companyName });
         
         // Success: Redirect to dashboard
         window.location.href = 'dashboard.html';
@@ -362,3 +362,92 @@ function initDashboard(userData) {
 // NOTE: We need to ensure api.js is loaded first for functions like getAuthToken.
 // We assume both script tags in index.html and dashboard.html load successfully.
 initializeApp();
+
+document.addEventListener('DOMContentLoaded', () => {
+    showLoginView();
+    showSignupLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        showSignupView();
+    });
+    showLoginLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        showLoginView();
+    });
+
+    // --- Login Form Submission Handler (REAL API INTEGRATION) ---
+    document.getElementById('login-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        signupErrorElement?.classList.add('hidden'); // Use same error element for login errors
+    
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+    
+        try {
+            // REAL API CALL
+            const result = await loginUser({ email, password });
+            
+            // Success: Redirect to dashboard
+            window.location.href = 'dashboard.html';
+    
+        } catch (error) {
+            // Failure: Display error message
+            console.error("Login failed:", error);
+            signupErrorElement.textContent = error.message || "Login failed. Please check credentials.";
+            signupErrorElement.classList.remove('hidden');
+        }
+    });
+    
+    // --- Signup Form Submission Handler (REAL API INTEGRATION) ---
+    document.getElementById('signup-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // 1. Clear previous error messages
+        signupErrorElement?.classList.add('hidden');
+        signupErrorElement.textContent = ''; 
+    
+        // 2. Get form values
+        const name = document.getElementById('signup-name').value;
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+        const confirmPassword = document.getElementById('signup-confirm-password').value;
+        const companyName = document.getElementById('signup-company').value; // Currency code is the option value
+        
+        // Password Confirmation Check
+        if (password !== confirmPassword) {
+            signupErrorElement.textContent = "Error: Passwords do not match!";
+            signupErrorElement.classList.remove('hidden');
+            return; 
+        }
+        
+        // Check if company name was entered
+        if (!companyName) {
+            signupErrorElement.textContent = "Error: Please enter your company name.";
+            signupErrorElement.classList.remove('hidden');
+            return; 
+        }
+    
+        try {
+            // REAL API CALL
+            const result = await signupAdmin({ name, email, password, companyName });
+            
+            // Success: Redirect to dashboard
+            window.location.href = 'dashboard.html';
+    
+        } catch (error) {
+            // Failure: Display error message
+            console.error("Signup failed:", error);
+            signupErrorElement.textContent = error.message || "Signup failed. Please try again.";
+            signupErrorElement.classList.remove('hidden');
+        }
+    });
+});
+
+function showLoginView() {
+    loginContainer.style.display = 'block';
+    signupContainer.style.display = 'none';
+}
+
+function showSignupView() {
+    loginContainer.style.display = 'none';
+    signupContainer.style.display = 'block';
+}

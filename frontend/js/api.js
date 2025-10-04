@@ -1,5 +1,5 @@
 // --- Configuration ---
-const API_BASE_URL = 'http://localhost:3000/api'; // Assuming backend runs on port 3000
+const API_BASE_URL = 'http://localhost:5000/api'; // Correct backend port
 
 // --- Local Storage Keys ---
 const TOKEN_KEY = 'authToken';
@@ -107,17 +107,8 @@ async function loginUser(credentials) {
  * Handles the first-time admin signup (creates company + admin).
  */
 async function signupAdmin(data) {
-    // The countryCurrencyCode is sent to the backend to set the company's default currency
-    const response = await fetchData('/auth/signup', 'POST', data);
-
-    // Store token and user data on successful signup
-    setAuthToken(response.token);
-    localStorage.setItem(USER_KEY, JSON.stringify({
-        name: response.user.name,
-        role: response.user.role,
-        id: response.user.id
-    }));
-    return response;
+    // Use the correct endpoint for registration
+    return await fetchData('/auth/register', 'POST', data);
 }
 
 // Fetches the country list for the signup form (no auth needed)
@@ -203,4 +194,47 @@ async function handleApproval(expenseId, action, comment) {
 async function createUser(userData) {
     // Requires authentication (and Admin role authorization on the backend)
     return await fetchData('/users', 'POST', userData);
+}
+
+// -------------------------------------------------------------------
+// --- NEW API FUNCTIONS ---
+// -------------------------------------------------------------------
+
+const API_URL = '/api';
+
+async function register(name, email, password, companyName, currency) {
+    const response = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, companyName, currency }),
+    });
+    return response.json();
+}
+
+async function login(email, password) {
+    const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+    });
+    return response.json();
+}
+
+async function getMyExpenses(token) {
+    const response = await fetch(`${API_URL}/expenses`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+    });
+    return response.json();
+}
+
+async function createExpense(token, description, amount) {
+    const response = await fetch(`${API_URL}/expenses`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ description, amount }),
+    });
+    return response.json();
 }
