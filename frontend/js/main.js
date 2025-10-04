@@ -19,7 +19,7 @@ function showLoginForm() {
 function showSignupForm() {
     signupContainer.classList.remove('hidden');
     loginContainer.classList.add('hidden');
-    
+    populateCountriesDropdown(); // to call the country api and populate the country list
 }
 
 // Attaching Event Listeners to Toggles
