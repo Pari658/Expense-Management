@@ -1,0 +1,146 @@
+
+/* Basic info about the theme and style:
+ * Minimalist Corporate Theme Styles
+ * Colors: 
+ * --color-primary: A trustworthy blue/teal (for CTAs)
+ * --color-background: Very light gray or off-white
+ * --color-text: Dark charcoal gray
+ * --color-border: Light gray
+ */
+:root {
+    --color-primary: #1e88e5; /* Trustworthy Blue */
+    --color-background: #f8f9fa; /* Light Gray */
+    --color-surface: #ffffff; /* White */
+    --color-text: #343a40; /* Dark Charcoal */
+    --color-border: #dee2e6; /* Light Border Gray */
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Base Reset and Typography */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--color-background);
+    color: var(--color-text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Main Container and Branding */
+.auth-container {
+    background-color: var(--color-surface);
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+
+.app-title {
+    color: var(--color-primary);
+    margin-bottom: 5px;
+    font-size: 1.8em;
+}
+
+.app-subtitle {
+    margin-bottom: 30px;
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+/* Form Styling */
+.form-wrapper {
+    text-align: left;
+}
+
+.form-wrapper h2 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: var(--color-text);
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: 5px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    font-weight: 600;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 1em;
+    transition: border-color 0.2s;
+}
+
+input:focus, select:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.2);
+}
+
+/* Button Styling */
+.btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-surface);
+    margin-top: 20px;
+}
+
+.btn-primary:hover {
+    background-color: #1565c0; /* Darker shade of primary */
+    transform: translateY(-1px);
+}
+
+/* Footer Links and Toggles */
+.form-footer {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+.form-footer a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.form-footer a:hover {
+    color: #1565c0;
+    text-decoration: underline;
+}
+
+/* Utility Class for JavaScript Toggle */
+.hidden {
+    display: none;
+}
