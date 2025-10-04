@@ -13,31 +13,42 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = async (req, res) => {
-    const { name, email, password, companyName, currency } = req.body;
+    const { name, email, password, companyName, role } = req.body;
 
-    if (!name || !email || !password || !companyName || !currency) {
+    if (!name || !email || !password || !companyName) {
         return res.status(400).json({ message: 'Please enter all fields' });
     }
 
     try {
-        const isFirstUserInSystem = (await User.countDocuments({})) === 0;
-
-        if (!isFirstUserInSystem) {
-            return res.status(403).json({ message: 'Registration is closed. Admin must create new users.' });
+        const userCount = await User.countDocuments({});
+        let userRole = role;
+        if (userCount === 0) {
+            userRole = 'Admin'; // First user is always Admin
+        } else if (!userRole) {
+            userRole = 'Employee'; // Default to Employee if not specified
         }
 
-        // Create company
-        const company = await Company.create({
-            name: companyName,
-            defaultCurrency: currency,
-        });
+        let company;
+        if (userCount === 0) {
+            // Create company for first user
+            company = await Company.create({
+                name: companyName,
+                defaultCurrency: 'USD',
+            });
+        } else {
+            // Find existing company by name
+            company = await Company.findOne({ name: companyName });
+            if (!company) {
+                return res.status(404).json({ message: 'Company not found. Please contact admin.' });
+            }
+        }
 
         // Create user
         const user = await User.create({
             name,
             email,
             password,
-            role: 'Admin', // First user is always Admin
+            role: userRole,
             company: company._id,
         });
 
