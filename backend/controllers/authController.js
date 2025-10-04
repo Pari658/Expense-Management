@@ -15,16 +15,15 @@ const generateToken = (id) => {
 const registerUser = async (req, res) => {
     const { name, email, password, companyName, currency } = req.body;
 
-    try {
-        const userExists = await User.findOne({ email });
-        if (userExists) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
+    if (!name || !email || !password || !companyName || !currency) {
+        return res.status(400).json({ message: 'Please enter all fields' });
+    }
 
-        // Check if it's the first user ever, to create the company
-        const isFirstUser = (await User.countDocuments({})) === 0;
-        if (!isFirstUser) {
-            return res.status(400).json({ message: 'Cannot register directly. Admin must create users.' });
+    try {
+        const isFirstUserInSystem = (await User.countDocuments({})) === 0;
+
+        if (!isFirstUserInSystem) {
+            return res.status(403).json({ message: 'Registration is closed. Admin must create new users.' });
         }
 
         // Create company
@@ -45,17 +44,13 @@ const registerUser = async (req, res) => {
         company.users.push(user._id);
         await company.save();
 
-        if (user) {
-            res.status(201).json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                token: generateToken(user._id),
-            });
-        } else {
-            res.status(400).json({ message: 'Invalid user data' });
-        }
+        res.status(201).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            token: generateToken(user._id),
+        });
     } catch (error) {
         res.status(500).json({ message: `Server Error: ${error.message}` });
     }

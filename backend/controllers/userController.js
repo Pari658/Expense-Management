@@ -9,12 +9,12 @@ const createUser = async (req, res) => {
     try {
         // Only Admin can create users
         if (req.user.role !== 'Admin') {
-            return res.status(403).json({ message: 'Not authorized to create users' });
+            return res.status(403).json({ message: 'Not authorized to perform this action' });
         }
 
         const userExists = await User.findOne({ email });
         if (userExists) {
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(400).json({ message: 'User with this email already exists' });
         }
 
         const user = await User.create({
@@ -23,7 +23,7 @@ const createUser = async (req, res) => {
             password,
             role,
             company: req.user.company, // Associate with admin's company
-            manager: managerId, // Assign manager if provided
+            manager: role === 'Employee' ? managerId : null, // Assign manager if role is Employee
         });
 
         res.status(201).json({

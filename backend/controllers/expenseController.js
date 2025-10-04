@@ -40,9 +40,9 @@ const getMyExpenses = async (req, res) => {
 const getExpensesForApproval = async (req, res) => {
     try {
         if (req.user.role !== 'Manager' && req.user.role !== 'Admin') {
-            return res.status(403).json({ message: 'Not authorized' });
+            return res.status(403).json({ message: 'Not authorized for this action' });
         }
-        const expenses = await Expense.find({ approvedBy: req.user._id, status: 'Pending' });
+        const expenses = await Expense.find({ approvedBy: req.user._id, status: 'Pending' }).populate('submittedBy', 'name email');
         res.json(expenses);
     } catch (error) {
         res.status(500).json({ message: `Server Error: ${error.message}` });
@@ -64,7 +64,7 @@ const updateExpenseStatus = async (req, res) => {
 
         // Check if the logged-in user is the designated approver
         if (expense.approvedBy.toString() !== req.user._id.toString()) {
-            return res.status(401).json({ message: 'Not authorized to approve this expense' });
+            return res.status(401).json({ message: 'Not authorized to update this expense' });
         }
 
         expense.status = status;

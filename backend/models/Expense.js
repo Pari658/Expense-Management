@@ -3,11 +3,12 @@ const mongoose = require('mongoose');
 const expenseSchema = new mongoose.Schema({
     description: {
         type: String,
-        required: true,
+        required: [true, 'Please add a description'],
+        trim: true,
     },
     amount: {
         type: Number,
-        required: true,
+        required: [true, 'Please add an amount'],
     },
     currency: {
         type: String,
@@ -29,7 +30,6 @@ const expenseSchema = new mongoose.Schema({
         ref: 'Company',
         required: true,
     },
-    // The manager who needs to approve this expense
     approvedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

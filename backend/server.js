@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const path = require('path');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -16,14 +17,18 @@ const app = express();
 // Body parser
 app.use(express.json());
 
-// Mount routers
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/expenses', expenseRoutes);
 
-// Test route
-app.get('/', (req, res) => {
-    res.send('API is running...');
+// Serve static files from frontend
+const frontendPath = path.join(__dirname, '../frontend');
+app.use(express.static(frontendPath));
+
+// Catch-all for frontend routing (only for GET requests not starting with /api)
+app.get(/^((?!\/api).)*$/, (req, res) => {
+    res.sendFile(path.resolve(frontendPath, 'index.html'));
 });
 
 const PORT = process.env.PORT || 5000;
