@@ -32,7 +32,34 @@
                 <a href="#" id="show-signup">Sign Up</a>
             </p>
         </div>
-
+        <div id="signup-form-container" class="form-wrapper hidden">
+            <h2>Create Admin Account</h2>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email Address</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-country">Company Country</label>
+                    <select id="signup-country" required>
+                        <option value="" disabled selected>Select your country</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Sign Up</button>
+            </form>
+            <p class="form-footer">
+                Already have an account? 
+                <a href="#" id="show-login">Log In</a>
+            </p>
+        </div>
 
     </div>
     <script src="js/main.js"></script>
