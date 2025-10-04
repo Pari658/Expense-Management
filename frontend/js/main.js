@@ -4,6 +4,9 @@ const signupContainer = document.getElementById('signup-form-container');
 const showSignupLink = document.getElementById('show-signup');
 const showLoginLink = document.getElementById('show-login');
 
+// Reference for displaying errors on the Signup form (must exist in index.html)
+const signupErrorElement = document.getElementById('signup-error');
+
 
 /**
  * Shows the Login form and hides the Signup form.
@@ -33,9 +36,34 @@ showLoginLink.addEventListener('click', (e) => {
     showLoginForm();
 });
 
-// (These functions is defined to talk to our backend API)
+// --- Login Form Submission Handler ---
 document.getElementById('login-form').addEventListener('submit', (e) => {
     e.preventDefault();
     console.log('Login form submitted!');
-    // loginUser(); // will be Callng API function here
+    // loginUser(); // will be Calling API function here
+});
+
+// --- Signup Form Submission Handler (Including Password Check) ---
+document.getElementById('signup-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    // 1. Clear previous error messages
+    signupErrorElement.classList.add('hidden');
+    signupErrorElement.textContent = ''; 
+
+    // Get form values
+    const password = document.getElementById('signup-password').value;
+    const confirmPassword = document.getElementById('signup-confirm-password').value;
+    
+    // Password Confirmation Check
+    if (password !== confirmPassword) {
+        // Display error in the dedicated element
+        signupErrorElement.textContent = "Error: Passwords do not match!";
+        signupErrorElement.classList.remove('hidden');
+        return; // Stop form submission
+    }
+    
+    // If validation passes, proceed to backend API call
+    // console.log('Signup form passed validation and is submitting to API!');
+    // signupAdmin(); // Call API function here
 });

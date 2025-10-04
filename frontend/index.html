@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Manager - Login/Signup</title>
+    <!-- Link to your CSS file -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
     <div class="auth-container">
+        <!-- Branding -->
         <h1 class="app-title">Expense Manager</h1>
         <p class="app-subtitle">Log in or create your company account.</p>
 
+        <!-- Login Form (Visible by default) -->
         <div id="login-form-container" class="form-wrapper">
             <h2>Log In</h2>
             <form id="login-form">
@@ -32,6 +36,8 @@
                 <a href="#" id="show-signup">Sign Up</a>
             </p>
         </div>
+
+        <!-- Signup Form (Hidden by default) -->
         <div id="signup-form-container" class="form-wrapper hidden">
             <h2>Create Admin Account</h2>
             <form id="signup-form">
@@ -48,11 +54,18 @@
                     <input type="password" id="signup-password" required>
                 </div>
                 <div class="form-group">
+                    <label for="signup-confirm-password">Confirm Password</label>
+                    <input type="password" id="signup-confirm-password" required>
+                </div>
+                <div class="form-group">
                     <label for="signup-country">Company Country</label>
                     <select id="signup-country" required>
                         <option value="" disabled selected>Select your country</option>
                     </select>
                 </div>
+                
+                <p id="signup-error" class="error-message hidden"></p>
+                
                 <button type="submit" class="btn btn-primary">Sign Up</button>
             </form>
             <p class="form-footer">
@@ -60,9 +73,10 @@
                 <a href="#" id="show-login">Log In</a>
             </p>
         </div>
-
     </div>
-    <script src="js/main.js"></script>
+    
+    <!-- Link to your JavaScript files -->
     <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
