@@ -11,8 +11,22 @@ const showLoginLink = document.getElementById('show-login');
 function showLoginForm() {
     loginContainer.classList.remove('hidden');
     signupContainer.classList.add('hidden');
-    // Update URL or history state if needed, but for simplicity, we skip it here.
 }
+
+/**
+ * Shows the Signup form and hides the Login form.
+ */
+function showSignupForm() {
+    signupContainer.classList.remove('hidden');
+    loginContainer.classList.add('hidden');
+    
+}
+
+// Attaching Event Listeners to Toggles
+showSignupLink.addEventListener('click', (e) => {
+    e.preventDefault(); // to stop the <a> tag from changing the URL
+    showSignupForm();
+});
 
 showLoginLink.addEventListener('click', (e) => {
     e.preventDefault();
