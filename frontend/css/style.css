@@ -12,6 +12,9 @@
     --color-surface: #ffffff; /* White */
     --color-text: #343a40; /* Dark Charcoal */
     --color-border: #dee2e6; /* Light Border Gray */
+    --color-success: #28a745; /* Green for Approved */
+    --color-danger: #dc3545; /* Red for Rejected */
+    --color-warning: #ffc107; /* Yellow for Pending/Manager */
     --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -26,10 +29,18 @@ body {
     font-family: var(--font-family);
     background-color: var(--color-background);
     color: var(--color-text);
-    display: flex;
+    /* Flex alignment used only for login page, default for dashboard */
+    display: flex; 
+    flex-direction: column; 
+    min-height: 100vh;
+}
+
+/* --- LOGIN/SIGNUP PAGE STYLES (index.html) ---------------------------- */
+
+/* Override body styles for the centered login/signup page */
+body:has(.auth-container) {
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
     padding: 20px;
 }
 
@@ -56,7 +67,7 @@ body {
     font-size: 0.9em;
 }
 
-/* Form Styling */
+/* Form Styling (Shared between login and dashboard forms) */
 .form-wrapper {
     text-align: left;
 }
@@ -81,32 +92,18 @@ label {
 }
 
 input, select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  font-size: 1em;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  background-color: var(--color-surface);
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 1em;
+    transition: border-color 0.2s;
 }
 
 input:focus, select:focus {
-  border-color: var(--color-primary);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.15); /* Soft focus ring */
-}
-
-/* Style for Error Messages */
-.error-message {
-    color: #dc3545; /* Red color for errors */
-    background-color: #f8d7da; /* Light pink background */
-    border: 1px solid #f5c6cb;
-    padding: 10px;
-    border-radius: 4px;
-    margin-bottom: 20px; 
-    font-size: 0.9em;
-    font-weight: 500;
-    text-align: center;
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.2);
 }
 
 /* Button Styling */
@@ -133,6 +130,17 @@ input:focus, select:focus {
     transform: translateY(-1px);
 }
 
+.btn-secondary {
+    background-color: #6c757d;
+    color: var(--color-surface);
+    margin-top: 5px;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+}
+
 /* Footer Links and Toggles */
 .form-footer {
     text-align: center;
@@ -153,7 +161,213 @@ input:focus, select:focus {
     text-decoration: underline;
 }
 
+/* Style for Error Messages */
+.error-message {
+    color: var(--color-danger); 
+    background-color: #f8d7da; 
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 20px; 
+    font-size: 0.9em;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* --- DASHBOARD LAYOUT STYLES (dashboard.html) ------------------------- */
+
+.app-header {
+    background-color: var(--color-surface);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 15px 30px;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px; /* Limit header width for large screens */
+    margin: 0 auto;
+}
+
+.header-title {
+    font-size: 1.5em;
+    color: var(--color-primary);
+    margin: 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 0.95em;
+}
+
+#logout-button {
+    width: auto;
+    padding: 8px 15px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.role-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-surface);
+}
+
+/* Role-Specific Badges */
+.role-badge[data-role="admin"] {
+    background-color: var(--color-danger); /* High visibility for Admin */
+}
+
+.role-badge[data-role="manager"] {
+    background-color: var(--color-warning); 
+    color: var(--color-text);
+}
+
+.role-badge[data-role="employee"] {
+    background-color: var(--color-primary);
+}
+
+.dashboard-main {
+    flex-grow: 1; /* Allows main content to fill remaining space */
+    padding: 30px 20px;
+}
+
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    gap: 30px;
+}
+
+/* Section Cards (Containers for content) */
+.section-card {
+    background-color: var(--color-surface);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.section-card h2 {
+    font-size: 1.4em;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 10px;
+}
+
+/* Inline Forms (Used for Admin User Creation) */
+.inline-form .form-group-inline {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.inline-form input, 
+.inline-form select {
+    flex: 1;
+    margin: 0; /* Override default form-group margin */
+}
+
+.inline-form .btn-primary {
+    width: auto;
+    flex-grow: 0;
+    margin-top: 0;
+    padding: 10px 20px;
+}
+
+/* Data Table Styling */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 0.95em;
+}
+
+.data-table th, 
+.data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.data-table th {
+    background-color: #e9ecef;
+    font-weight: 600;
+    color: var(--color-text);
+    text-transform: uppercase;
+    font-size: 0.85em;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Status Badges within Tables */
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-approved {
+    background-color: var(--color-success);
+    color: var(--color-surface);
+}
+
+.status-rejected {
+    background-color: var(--color-danger);
+    color: var(--color-surface);
+}
+
+.status-pending {
+    background-color: var(--color-warning);
+    color: var(--color-text);
+}
+
 /* Utility Class for JavaScript Toggle */
 .hidden {
-    display: none;
+    display: none !important;
+}
+
+/* Loading State (Simple spinner effect in CSS) */
+.loading-state {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.1em;
+    color: #6c757d;
+}
+
+/* Media Query for Responsiveness */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .user-info {
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
+    }
+    .inline-form .form-group-inline {
+        flex-direction: column;
+    }
+    .inline-form input,
+    .inline-form select,
+    .inline-form .btn-primary {
+        width: 100%;
+        flex: none;
+    }
 }
