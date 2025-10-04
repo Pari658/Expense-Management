@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
+const {
+    createExpense,
+    getMyExpenses,
+    getExpensesForApproval,
+    updateExpenseStatus,
+} = require('../controllers/expenseController');
 const { protect } = require('../middleware/authMiddleware');
 
-// This is the test route from before
-router.get('/test', protect, (req, res) => {
-    res.status(200).json({
-        message: 'Authorization successful!',
-        user: req.user
-    });
-});
-
-// Add other expense routes here
+router.route('/').post(protect, createExpense).get(protect, getMyExpenses);
+router.route('/approvals').get(protect, getExpensesForApproval);
+router.route('/:id/status').put(protect, updateExpenseStatus);
 
 module.exports = router;

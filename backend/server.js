@@ -1,34 +1,33 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
-
-// Load route files
 const authRoutes = require('./routes/authRoutes');
-const expenseRoutes = require('./routes/expenseRoutes');
 const userRoutes = require('./routes/userRoutes');
+const expenseRoutes = require('./routes/expenseRoutes');
 
-// Load environment variables
+// Load env vars
 dotenv.config();
 
-// Connect to Database
+// Connect to database
 connectDB();
 
 const app = express();
 
-// Middleware to parse JSON bodies
+// Body parser
 app.use(express.json());
 
+// Mount routers
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/expenses', expenseRoutes);
+
+// Test route
 app.get('/', (req, res) => {
     res.send('API is running...');
 });
 
-// Mount routers
-app.use('/api/auth', authRoutes);
-app.use('/api/expenses', expenseRoutes);
-app.use('/api/users', userRoutes);
-
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port http://localhost:${PORT}`);
-});
+app.listen(PORT, () =>
+    console.log(`Server running on port ${PORT}`)
+);
