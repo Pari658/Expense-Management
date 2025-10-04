@@ -35,7 +35,9 @@ body {
     min-height: 100vh;
 }
 
+/* ---------------------------------------------------------------------- */
 /* --- LOGIN/SIGNUP PAGE STYLES (index.html) ---------------------------- */
+/* ---------------------------------------------------------------------- */
 
 /* Override body styles for the centered login/signup page */
 body:has(.auth-container) {
@@ -174,7 +176,9 @@ input:focus, select:focus {
     text-align: center;
 }
 
+/* ---------------------------------------------------------------------- */
 /* --- DASHBOARD LAYOUT STYLES (dashboard.html) ------------------------- */
+/* ---------------------------------------------------------------------- */
 
 .app-header {
     background-color: var(--color-surface);
@@ -335,6 +339,47 @@ input:focus, select:focus {
     background-color: var(--color-warning);
     color: var(--color-text);
 }
+
+/* --- Manager View Specific Styles (Fixes alignment for action buttons) --- */
+.approval-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-start;
+}
+
+.approval-actions .btn {
+    width: 100px; /* Make the action buttons uniform and narrow */
+    padding: 8px;
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-top: 0;
+}
+
+/* Specific colors for action buttons */
+.btn-approve {
+    background-color: var(--color-success) !important;
+}
+
+.btn-approve:hover {
+    background-color: #1e7e34 !important;
+}
+
+.btn-reject {
+    background-color: var(--color-danger) !important;
+}
+
+.btn-reject:hover {
+    background-color: #bd2130 !important;
+}
+
+.approval-actions .comment-input {
+    width: 100%;
+    margin-top: 5px;
+    padding: 6px;
+    font-size: 0.85em;
+}
+
 
 /* Utility Class for JavaScript Toggle */
 .hidden {

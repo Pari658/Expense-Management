@@ -13,16 +13,32 @@ const adminView = document.getElementById('admin-view');
 const userNameElement = document.getElementById('user-display-name');
 const userRoleElement = document.getElementById('user-display-role');
 const logoutButton = document.getElementById('logout-button');
+const employeeExpenseTableBody = document.querySelector('#employee-expense-table tbody');
+const managerApprovalTableBody = document.querySelector('#manager-approval-table tbody');
+const adminAllExpensesTableBody = document.querySelector('#admin-all-expenses-table tbody'); 
 
-// --- MOCK DATA FOR TESTING ROLES (Remove when backend is integrated) ---
-// Change the role here to test the different dashboard views!
+
+// --- MOCK DATA FOR TESTING ROLES (Used if token isn't found for dashboard) ---
+// **NOTE:** Only used as fallback. Real data comes from localStorage/API.
 const MOCK_USER_DATA = {
-    isLoggedIn: true,
-    name: "Alex Johnson",
-    role: "Admin", // TEST ROLES: "Admin", "Manager", "Employee"
-    userId: "A1001",
+    isLoggedIn: false, // Set to false to force token check
+    name: "Susan Lee (Admin)",
+    role: "Admin", 
+    userId: "A0001",
     companyCurrency: "USD"
 };
+
+// --- MOCK EXPENSE DATA (Used for rendering logic tests) ---
+const MOCK_EMPLOYEE_EXPENSES = [
+    { id: 1, date: '2025-10-01', category: 'Travel', amount: 450.50, status: 'approved' },
+];
+const MOCK_APPROVAL_QUEUE = [
+    { id: 101, employee: 'Alex Johnson', date: '2025-10-05', amount: 230.99, localCurrency: 'EUR', currencyConversion: '245.00 USD' },
+];
+const MOCK_ADMIN_ALL_EXPENSES = [
+    { id: 201, employee: 'Ben Taylor', amount: 75.00, status: 'pending', currentApprover: 'Jane Smith' },
+];
+
 
 /**
  * Utility function to hide all role views.
@@ -35,56 +51,153 @@ function hideAllViews() {
 }
 
 /**
- * Renders the correct view based on the user's role.
- * @param {string} role The user's role ("admin", "manager", or "employee").
+ * Generates the HTML for the expense status badge.
+ * @param {string} status The status string ('approved', 'rejected', 'pending').
  */
-function renderDashboardView(role) {
+function getStatusBadge(status) {
+    const className = `status-${status.toLowerCase()}`;
+    return `<span class="status-badge ${className}">${status}</span>`;
+}
+
+// -------------------------------------------------------------------
+// --- DASHBOARD RENDERING FUNCTIONS (Phase 2 - Complete) ---
+// -------------------------------------------------------------------
+
+function renderEmployeeHistory(expenses) {
+    employeeExpenseTableBody.innerHTML = '';
+    if (expenses.length === 0) {
+        employeeExpenseTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No expense claims submitted yet.</td></tr>';
+        return;
+    }
+    expenses.forEach(expense => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${expense.date}</td>
+            <td>${expense.category}</td>
+            <td>$${expense.amount.toFixed(2)}</td>
+            <td>${getStatusBadge(expense.status)}</td>
+        `;
+        employeeExpenseTableBody.appendChild(row);
+    });
+}
+
+function renderManagerApprovals(approvals) {
+    managerApprovalTableBody.innerHTML = '';
+    if (approvals.length === 0) {
+        managerApprovalTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No expenses awaiting your approval.</td></tr>';
+        return;
+    }
+    approvals.forEach(expense => {
+        const row = document.createElement('tr');
+        row.setAttribute('data-expense-id', expense.id); 
+        row.innerHTML = `
+            <td>${expense.employee}</td>
+            <td>${expense.date}</td>
+            <td>${expense.currencyConversion} (from ${expense.amount.toFixed(2)} ${expense.localCurrency})</td>
+            <td>
+                <div class="approval-actions">
+                    <button class="btn btn-approve" data-action="approve">Approve</button>
+                    <button class="btn btn-reject" data-action="reject">Reject</button>
+                    <input type="text" placeholder="Add comment (optional)" class="comment-input">
+                </div>
+            </td>
+        `;
+        managerApprovalTableBody.appendChild(row);
+    });
+    // Placeholder listener for Manager actions (will call API functions)
+    document.querySelectorAll('.btn-approve, .btn-reject').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const row = e.target.closest('tr');
+            const expenseId = row.getAttribute('data-expense-id');
+            const action = e.target.getAttribute('data-action');
+            const comment = row.querySelector('.comment-input').value;
+            // TODO: Replace with call to api.js: await handleApproval(expenseId, action, comment)
+            console.log(`[MOCK] Calling API: ${action.toUpperCase()} expense ${expenseId}...`);
+            // Example of removing row after successful API call: row.remove();
+        });
+    });
+}
+
+function renderAdminViews(expenses) {
+    adminAllExpensesTableBody.innerHTML = '';
+    if (expenses.length === 0) {
+        adminAllExpensesTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No expenses recorded for the company.</td></tr>';
+        return;
+    }
+    expenses.forEach(expense => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${expense.employee}</td>
+            <td>$${expense.amount.toFixed(2)}</td>
+            <td>${getStatusBadge(expense.status)} (Current: ${expense.currentApprover})</td>
+            <td>
+                <button class="btn btn-secondary btn-sm" onclick="console.log('Admin overriding status for expense ${expense.id}')">Override Status</button>
+            </td>
+        `;
+        adminAllExpensesTableBody.appendChild(row);
+    });
+    // NOTE: User Management form handler is attached via attachDashboardFormHandlers
+}
+
+
+/**
+ * Renders the correct view based on the user's role.
+ * @param {object} userData - The actual user data (name, role) returned from API.
+ */
+function renderDashboardView(userData) {
     hideAllViews();
     
     // Set user info in the header
-    userNameElement.textContent = MOCK_USER_DATA.name;
-    userRoleElement.textContent = role;
-    userRoleElement.setAttribute('data-role', role.toLowerCase());
+    userNameElement.textContent = userData.name;
+    userRoleElement.textContent = userData.role;
+    userRoleElement.setAttribute('data-role', userData.role.toLowerCase());
 
-    // Show the specific view based on role
-    switch (role.toLowerCase()) {
+    const role = userData.role.toLowerCase();
+
+    // Show the specific view based on role and use mock data for now
+    switch (role) {
         case 'admin':
             adminView.classList.remove('hidden');
+            renderAdminViews(MOCK_ADMIN_ALL_EXPENSES); 
             break;
         case 'manager':
             managerView.classList.remove('hidden');
-            // Mock data for manager-specific content
-            // renderManagerApprovals(); // To be implemented later
+            renderManagerApprovals(MOCK_APPROVAL_QUEUE); 
             break;
         case 'employee':
             employeeView.classList.remove('hidden');
-            // Mock data for employee-specific content
-            // renderExpenseSubmissionForm(); // To be implemented later
+            renderEmployeeHistory(MOCK_EMPLOYEE_EXPENSES); 
             break;
         default:
-            // Handle unknown role or error state
             console.error("Unknown user role:", role);
             break;
     }
 }
 
 /**
- * Initializes the dashboard page, checks authentication, and renders the view.
+ * Attaches form submission handlers for forms located on the dashboard.
+ * (Employee Expense Submission and Admin User Creation)
  */
-function initDashboard() {
-    // 1. Check for Authentication (Mocked for now)
-    if (!MOCK_USER_DATA.isLoggedIn) {
-        // In a real app, this would check for a token in localStorage
-        window.location.href = 'index.html';
-        return;
-    }
+function attachDashboardFormHandlers() {
+    // 1. Employee Expense Submission Form
+    document.getElementById('expense-submission-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // TODO: Gather form data and call api.js: submitExpense(data)
+        console.log('[MOCK] Expense submitted successfully! (Needs API integration)');
+    });
 
-    // 2. Render the Dashboard
-    renderDashboardView(MOCK_USER_DATA.role);
+    // 2. Admin User Creation Form
+    document.getElementById('user-creation-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // TODO: Gather form data (Name, Email, Role) and call api.js: createUser(data)
+        console.log('[MOCK] Admin submitted new user creation request. (Needs API integration)');
+    });
 }
 
+
 // -------------------------------------------------------------------
-// --- INDEX.HTML (Login/Signup) Logic ---
+// --- INDEX.HTML (Login/Signup) Logic - Phase 3 INTEGRATION ---
 // -------------------------------------------------------------------
 
 /**
@@ -93,6 +206,7 @@ function initDashboard() {
 function showLoginForm() {
     loginContainer?.classList.remove('hidden');
     signupContainer?.classList.add('hidden');
+    signupErrorElement?.classList.add('hidden'); // Clear errors when switching
 }
 
 /**
@@ -101,12 +215,16 @@ function showLoginForm() {
 function showSignupForm() {
     signupContainer?.classList.remove('hidden');
     loginContainer?.classList.add('hidden');
-    populateCountriesDropdown(); // to call the country api and populate the country list
+    signupErrorElement?.classList.add('hidden'); // Clear errors when switching
+    // populateCountriesDropdown is in api.js and must be available globally
+    if (typeof populateCountriesDropdown === 'function') {
+        populateCountriesDropdown(); 
+    }
 }
 
 // Attaching Event Listeners to Toggles
 showSignupLink?.addEventListener('click', (e) => {
-    e.preventDefault(); // to stop the <a> tag from changing the URL
+    e.preventDefault(); 
     showSignupForm();
 });
 
@@ -115,43 +233,79 @@ showLoginLink?.addEventListener('click', (e) => {
     showLoginForm();
 });
 
-// --- Login Form Submission Handler ---
-document.getElementById('login-form')?.addEventListener('submit', (e) => {
+// --- Login Form Submission Handler (REAL API INTEGRATION) ---
+document.getElementById('login-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    // In a real app: call loginUser() from api.js, store token/role, and redirect to dashboard.html
-    console.log('Login form submitted! Redirecting to dashboard...');
-    window.location.href = 'dashboard.html'; 
+    signupErrorElement?.classList.add('hidden'); // Use same error element for login errors
+
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+
+    try {
+        // REAL API CALL
+        const result = await loginUser({ email, password });
+        
+        // Success: Redirect to dashboard
+        window.location.href = 'dashboard.html';
+
+    } catch (error) {
+        // Failure: Display error message
+        console.error("Login failed:", error);
+        signupErrorElement.textContent = error.message || "Login failed. Please check credentials.";
+        signupErrorElement.classList.remove('hidden');
+    }
 });
 
-// --- Signup Form Submission Handler (Including Password Check) ---
-document.getElementById('signup-form')?.addEventListener('submit', (e) => {
+// --- Signup Form Submission Handler (REAL API INTEGRATION) ---
+document.getElementById('signup-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     // 1. Clear previous error messages
     signupErrorElement?.classList.add('hidden');
     signupErrorElement.textContent = ''; 
 
-    // Get form values
+    // 2. Get form values
+    const name = document.getElementById('signup-name').value;
+    const email = document.getElementById('signup-email').value;
     const password = document.getElementById('signup-password').value;
     const confirmPassword = document.getElementById('signup-confirm-password').value;
+    const countryCurrencyCode = document.getElementById('signup-country').value; // Currency code is the option value
     
     // Password Confirmation Check
     if (password !== confirmPassword) {
-        // Display error in the dedicated element
         signupErrorElement.textContent = "Error: Passwords do not match!";
         signupErrorElement.classList.remove('hidden');
-        return; // Stop form submission
+        return; 
     }
     
-    // In a real app: call signupAdmin() from api.js, store token/role, and redirect.
-    console.log('Signup form passed validation and is submitting to API! Redirecting...');
-    window.location.href = 'dashboard.html'; 
+    // Check if country was selected (the default option is value="")
+    if (!countryCurrencyCode) {
+        signupErrorElement.textContent = "Error: Please select your company's country.";
+        signupErrorElement.classList.remove('hidden');
+        return; 
+    }
+
+    try {
+        // REAL API CALL
+        const result = await signupAdmin({ name, email, password, countryCurrencyCode });
+        
+        // Success: Redirect to dashboard
+        window.location.href = 'dashboard.html';
+
+    } catch (error) {
+        // Failure: Display error message
+        console.error("Signup failed:", error);
+        signupErrorElement.textContent = error.message || "Signup failed. Please try again.";
+        signupErrorElement.classList.remove('hidden');
+    }
 });
 
 // --- Logout Handler ---
 logoutButton?.addEventListener('click', () => {
-    // In a real app: Clear token from localStorage
-    console.log("User logged out.");
+    // Log user out by clearing the token and redirecting
+    if (typeof clearAuthToken === 'function') {
+        clearAuthToken();
+    }
     window.location.href = 'index.html';
 });
 
@@ -160,10 +314,51 @@ logoutButton?.addEventListener('click', () => {
 // --- INITIALIZATION ---
 // -------------------------------------------------------------------
 
-// Check which page we are on and run the corresponding initialization function
-if (document.querySelector('.auth-container')) {
-    // We are on index.html, no special initialization needed.
-} else if (document.querySelector('.dashboard-main')) {
-    // We are on dashboard.html
-    initDashboard();
+// Function to get user data from localStorage and initialize dashboard
+async function initializeApp() {
+    const token = getAuthToken();
+    
+    if (document.querySelector('.dashboard-main')) {
+        // We are on dashboard.html
+        if (!token) {
+            // No token found, redirect to login
+            window.location.href = 'index.html';
+            return;
+        }
+
+        try {
+            // **TODO:** Replace MOCK_USER_DATA with a real API call to get user data from the token
+            // const userData = await fetchUserDataFromToken(token); 
+            
+            // For now, use mock data structure to render the view
+            const userData = MOCK_USER_DATA;
+            userData.isLoggedIn = true; 
+
+            initDashboard(userData);
+        } catch (error) {
+            console.error("Dashboard initialization failed:", error);
+            // If token is invalid or server is down, redirect to login
+            clearAuthToken(); 
+            window.location.href = 'index.html';
+        }
+    } else if (document.querySelector('.auth-container')) {
+        // We are on index.html
+        // Check if user is already logged in (for immediate redirect)
+        if (token) {
+            window.location.href = 'dashboard.html';
+        }
+    }
 }
+
+function initDashboard(userData) {
+    // 1. Render the Dashboard
+    renderDashboardView(userData);
+    
+    // 2. Attach Form Submission Handlers for Dashboard Forms (Admin/Employee)
+    attachDashboardFormHandlers();
+}
+
+// Start the application!
+// NOTE: We need to ensure api.js is loaded first for functions like getAuthToken.
+// We assume both script tags in index.html and dashboard.html load successfully.
+initializeApp();
